@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171410_000274",
+  "parent_sha256": "222f3bd6feadd71fbbd4a09cd887366655274c6dc39096939ecb8d76b1acbe7c",
+  "src_file": "__--file--tasks-005_cli_expansion",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "binary",
+  "lang": "en",
+  "status": "binary",
+  "size_bytes": 7217,
+  "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tags": [],
+  "text": ""
+}

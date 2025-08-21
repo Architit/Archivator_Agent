@@ -1,0 +1,16 @@
+{
+  "block_id": "blk_20250820171407_000015",
+  "parent_sha256": "3856789cbfe9a61237fcd495a3c73e16ffabb8005b17ad2ab80f63ff48faaedf",
+  "src_file": "file-tasks016_docker_mvp_run.md",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 2219,
+  "hash_sha256": "3856789cbfe9a61237fcd495a3c73e16ffabb8005b17ad2ab80f63ff48faaedf",
+  "tags": [
+    "core"
+  ],
+  "text": "┌─ <file> tasks/016_docker_mvp_run.md\r\n│\r\n│ # 016 — Docker-MVP Run (Ubuntu Server)\r\n│\r\n│ ## Overview\r\n│ Цель: за 30 минут поднять контейнер LAM на сервере Ubuntu,\r\n│ чтобы цикл self-check крутился автономно и писал логи.\r\n│ Минимум зависимостей, один `docker run`.\r\n│\r\n│ ## Goals / Acceptance\r\n│ - `Dockerfile` (одностадийный) собирает образ < 200 MB.  \r\n│ - Команда  \r\n│     `docker run -d --name lam -p 8000:8000 lam-mvp`  \r\n│   запускает self-check (stdout = JSON-лог).  \r\n│ - Healthcheck layer: curl `http://localhost:8000/status`.  \r\n│ - README «Quick start on Ubuntu» с пятью строками.\r\n│\r\n│ ## LAM prompt\r\n│ «Перечисли переменные, которые **должны** идти через\r\n│   `-e KEY=…` при запуске контейнера (openai key, fatigue\r\n│   коэфф., dashboard token).  Подумай, какие значения\r\n│   безопасно предлагать по-умолчанию, а какие — обязательны.»\r\n│\r\n│ ## Codex prompt\r\n│ 1. Создать `Dockerfile`  \r\n│    ```Dockerfile\r\n│    FROM python:3.12-slim\r\n│    WORKDIR /app\r\n│    COPY . .\r\n│    RUN pip install --no-cache-dir .\r\n│    HEALTHCHECK CMD curl -f http://localhost:8000/status || exit 1\r\n│    ENTRYPOINT [\"lam\", \"self-check\"]\r\n│    ```\r\n│ 2. Добавить `scripts/run_local.sh` (build+run) и\r\n│    `scripts/docker_healthcheck.sh` (poll).  \r\n│ 3. CI-job `docker-mvp` (matrix linux/amd64, linux/arm64).  \r\n│\r\n│ ## Operator prompt\r\n│ - На сервере:  \r\n│     ```bash\r\n│     sudo apt update && sudo apt install docker.io -y\r\n│     git clone https://github.com/<user>/lam-core.git && cd lam-core\r\n│     docker build -t lam-mvp .\r\n│     docker run -d --name lam \\\r\n│       -e OPENAI_API_KEY=$OPENAI_API_KEY \\\r\n│       -e CONSCIOUS_LOG_LEVEL=INFO \\\r\n│       -p 8000:8000 lam-mvp\r\n│     docker logs -f lam\r\n│     ```  \r\n│ - При желании: `docker update --restart=always lam`\r\n│\r\n│ ∴\r\n└─\r\n"
+}

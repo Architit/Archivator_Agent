@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171407_000013",
+  "parent_sha256": "967f9e346b92cd1d343c98b5949c98590b3a82b5608a624ba376402a1f596d14",
+  "src_file": "file-tasks014_security_dependency_scan.md",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 1155,
+  "hash_sha256": "967f9e346b92cd1d343c98b5949c98590b3a82b5608a624ba376402a1f596d14",
+  "tags": [],
+  "text": "┌─ <file> tasks/014_security_dependency_scan.md\r\n│\r\n│ # 014 — Щит зависимостей\r\n│\r\n│ ## Overview\r\n│ Сканы CVE + авто-обновления библиотек, чтобы дыр не копилось.\r\n│\r\n│ ## Goals / Acceptance\r\n│ - Workflow `security.yml`:\r\n│   - запускает Grype на Docker-образе;  \r\n│   - сообщает «0 high CVE».\r\n│ - `renovate.json` → weekly PR обновлений.\r\n│ - README badge “dependencies: up-to-date”.\r\n│\r\n│ ## LAM prompt\r\n│ «Определи список критичных CVE-меток, при которых\r\n│   мы блокируем релиз (high, critical).»\r\n│\r\n│ ## Codex prompt\r\n│ 1. Интегрировать `anchore/grype-action@v3`.\r\n│ 2. Конфиг Grype: fail-on `severity=high`.\r\n│ 3. Добавить badge с Shields.io.\r\n│ 4. `renovate.json`: preset `schedule:weekly`, `automergeType=pr`.\r\n│\r\n│ ## Operator prompt\r\n│ - Включи Dependabot advisories в репо settings.  \r\n│ - Проверь первый отчёт security-workflow (artefact HTML).\r\n│\r\n│ ∴\r\n└─\r\n"
+}

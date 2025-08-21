@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171407_000010",
+  "parent_sha256": "aaea854a8729da424a5c44fa8fef7726898b8effbe8d07322135d25447695f45",
+  "src_file": "file-tasks010_continuous_deployment.md",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 1442,
+  "hash_sha256": "aaea854a8729da424a5c44fa8fef7726898b8effbe8d07322135d25447695f45",
+  "tags": [],
+  "text": "┌─ <file> tasks/010_continuous_deployment.md\r\n│\r\n│ # 010 — Автовыпуск & SemVer\r\n│\r\n│ ## Overview\r\n│ После зелёного CI релиз формируется сам: тег, Docker,\r\n│ sdist/wheel, changelog — всё в одном месте.\r\n│\r\n│ ## Goals / Acceptance\r\n│ - Workflow `release.yaml`:\r\n│   1) читает версию из `pyproject.toml`;\r\n│   2) создаёт тег vX.Y.Z, если нет;\r\n│   3) GitHub Release + прикреплённые артефакты.\r\n│ - CHANGELOG собирается `towncrier`.\r\n│ - SemVer: patch = fix, minor = feat, major = breaking.\r\n│\r\n│ ## LAM prompt\r\n│ «Определи правила инкремента версии из типов коммитов;\r\n│   как откатываем если релиз сломал prod?»\r\n│\r\n│ ## Codex prompt\r\n│ 1. Добавить `towncrier` + `pyproject.toml [tool.towncrier]`.\r\n│ 2. Workflow шаги:\r\n│    - `hatch version patch|minor|major` (auto-detected).\r\n│    - `docker-build` job как needs.\r\n│    - `gh release create`.\r\n│ 3. CHANGELOG.md автоген при релизе.\r\n│\r\n│ ## Operator prompt\r\n│ - Добавь Conventional Commits чек в CI (`commitlint`).\r\n│ - Test-run: `echo \"chore: release dry-run\" >> dummy && git commit`.\r\n│ - Убедись, что релиз помечен как “draft”.\r\n│\r\n│ ∴\r\n└─\r\n"
+}

@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171407_000009",
+  "parent_sha256": "b910574e6563b414fe724bda0a1dba5cda7677834f17d6251e443ef408d519cc",
+  "src_file": "file-tasks009_docker_devcontainer.md",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 2208,
+  "hash_sha256": "b910574e6563b414fe724bda0a1dba5cda7677834f17d6251e443ef408d519cc",
+  "tags": [],
+  "text": "┌─ <file> tasks/009_docker_devcontainer.md\r\n│\r\n│ # 009 — Docker-кокон & Devcontainer\r\n│\r\n│ ## Overview\r\n│ Собираем официальный контейнер LAM. \r\n│ Один Dockerfile → одинаковая среда в CI, prod и у каждого\r\n│ разработчика.  Плюс DevContainer для VS Code.\r\n│\r\n│ ## Goals / Acceptance\r\n│ - Мульти-stage Dockerfile (`builder` → `runtime-slim`).\r\n│ - GitHub Action `docker-build` пушит образ в GHCR.\r\n│ - `.devcontainer.json` + `docker-compose.dev.yml`:\r\n│   запуск `lam self-check` при старте.\r\n│ - README badge: `docker pull ghcr.io/<user>/lam:latest`.\r\n│\r\n│ ## LAM prompt\r\n│ «Собери список переменных окружения, которые должны\r\n│   попадать в контейнер, но не в образ (только через .env).»\r\n│\r\n│ ## Codex prompt\r\n│ 1. Добавить `Dockerfile`:\r\n│    - stage1: `python:3.12-slim`, install hatch, deps, pytest.\r\n│    - stage2: копия wheel + `lam` entrypoint; non-root user.\r\n│ 2. GitHub Action:\r\n│    - buildx build `--push --tags ghcr.io/<user>/lam:latest`.\r\n│    - cache-to/cache-from.\r\n│ 3. DevContainer:\r\n│    ```json\r\n│    {\r\n│      \"features\": { \"ghcr.io/devcontainers/features/docker-in-docker\": \"latest\" },\r\n│      \"postStartCommand\": \"lam self-check\"\r\n│    }\r\n│    ```\r\n│\r\n│ ## Operator prompt\r\n│ - Создай `GHCR_PAT` secret с scope `write:packages`.\r\n│ - Проверь локально: `docker run --rm lam:latest lam self-check`.\r\n│ - В VS Code: «Reopen in Container» → тесты должны зелёные.\r\n│\r\n│ ∴\r\n└─\r\n\r\n\r\n\r\n### build frontend\r\nFROM node:20-alpine AS frontend\r\nWORKDIR /web\r\nCOPY web/package*.json ./\r\nRUN npm ci\r\nCOPY web ./\r\nRUN npm run build        # => /web/dist\r\n\r\n### python runtime\r\nFROM python:3.12-slim AS runtime\r\nWORKDIR /app\r\nCOPY . .\r\nCOPY --from=frontend /web/dist ./static\r\nRUN pip install --no-cache-dir \".[cli]\"\r\nENV PYTHONUNBUFFERED=1\r\nEXPOSE 8000\r\nCMD [\"uvicorn\", \"lam.web.api:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+}
