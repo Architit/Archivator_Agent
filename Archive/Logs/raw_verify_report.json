@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-08-20T17:13:18Z",
+  "archive": "C:\\Users\\lkise\\Documents\\GitHub\\Archivator_Agent\\Archive",
+  "index_path": "C:\\Users\\lkise\\Documents\\GitHub\\Archivator_Agent\\Archive\\Index\\raw.index.jsonl",
+  "total": 143,
+  "unique_hint": 92,
+  "missing": 0,
+  "mismatched": 0,
+  "sampled": 10,
+  "ok": 143
+}

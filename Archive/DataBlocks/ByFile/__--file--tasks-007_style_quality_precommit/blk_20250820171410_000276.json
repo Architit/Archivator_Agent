@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171410_000276",
+  "parent_sha256": "cf10deb888af26efdfc4709e2f2b890fe729048a6c3274697b4e577b861531cb",
+  "src_file": "__--file--tasks-007_style_quality_precommit",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "binary",
+  "lang": "en",
+  "status": "binary",
+  "size_bytes": 7162,
+  "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tags": [],
+  "text": ""
+}

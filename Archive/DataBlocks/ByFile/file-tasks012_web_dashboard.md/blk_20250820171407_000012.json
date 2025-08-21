@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171407_000012",
+  "parent_sha256": "c4a33390c873a104bf048a84addfd85dfdf396dffc8936c1e18cd4b6d8b9d097",
+  "src_file": "file-tasks012_web_dashboard.md",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 1410,
+  "hash_sha256": "c4a33390c873a104bf048a84addfd85dfdf396dffc8936c1e18cd4b6d8b9d097",
+  "tags": [],
+  "text": "┌─ <file> tasks/012_web_dashboard.md\r\n│\r\n│ # 012 — Веб-панель наблюдения\r\n│\r\n│ ## Overview\r\n│ Лёгкий сайт: память, статус цикла, живые логи. \r\n│ React + Vite, отдаётся FastAPI.\r\n│\r\n│ ## Goals / Acceptance\r\n│ - `/web` → Vite React app, `npm run build` в `static/`.\r\n│ - Компоненты:\r\n│   1) MemoryTable (поиск/фильтр);  \r\n│   2) EngineStatus (delay, errors, provider);  \r\n│   3) LogStream (WebSocket tail-f).\r\n│ - FastAPI endpoint `GET /` → index.html, WS `/ws/logs`.\r\n│ - Auth: Bearer token из `.env`.\r\n│\r\n│ ## LAM prompt\r\n│ «Опиши UX-сценарии: какие действия оператор захочет делать\r\n│   прямо из панели?»\r\n│\r\n│ ## Codex prompt\r\n│ 1. Создать `web/` проект (`npm create vite@latest` + shadcn/ui).\r\n│ 2. FastAPI router `router_dashboard.py`.\r\n│ 3. Docker multi-stage: `npm ci && npm run build` во второй слой.\r\n│ 4. Юнит-тест: `pytest` + `httpx.AsyncClient` проверяет `200 /`.\r\n│\r\n│ ## Operator prompt\r\n│ - `npm i && npm run dev` — локально посмотреть.  \r\n│ - Добавь `DASHBOARD_TOKEN` в `.env`.\r\n│ - Проверь лаив-лог: убей провайдера → красный индикатор.\r\n│\r\n│ ∴\r\n└─\r\n"
+}

@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171410_000277",
+  "parent_sha256": "d927a9c7bf1b61d2d0168e3561f21b228a3ad20358e12ba952be6a5e625d5808",
+  "src_file": "__--file--tasks-008_config_security",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "binary",
+  "lang": "en",
+  "status": "binary",
+  "size_bytes": 7299,
+  "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tags": [],
+  "text": ""
+}

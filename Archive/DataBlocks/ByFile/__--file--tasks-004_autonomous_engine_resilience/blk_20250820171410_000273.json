@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171410_000273",
+  "parent_sha256": "3f79eab479dec3a4f0fc1073c0e8af9e1af732b9155785cfda1233ada13551ec",
+  "src_file": "__--file--tasks-004_autonomous_engine_resilience",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "binary",
+  "lang": "en",
+  "status": "binary",
+  "size_bytes": 7384,
+  "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tags": [],
+  "text": ""
+}

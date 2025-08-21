@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171410_000271",
+  "parent_sha256": "fd33fa87c555b26e95996824830c4dee24ac7bba21d109dcc955ea3acefd7e47",
+  "src_file": "__--file--tasks-002_semantic_memory_vectorstore",
+  "seq": 1,
+  "total_seqs": 1,
+  "encoding": "binary",
+  "lang": "en",
+  "status": "binary",
+  "size_bytes": 7558,
+  "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tags": [],
+  "text": ""
+}

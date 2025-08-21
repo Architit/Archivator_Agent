@@ -1,0 +1,14 @@
+{
+  "block_id": "blk_20250820171407_000029",
+  "parent_sha256": "0d193a60c2cf342a16096ff8215ee475c80b8d493726d269711425032b6a277c",
+  "src_file": "lam_mem.core_v.0.1.1",
+  "seq": 2,
+  "total_seqs": 2,
+  "encoding": "utf-8",
+  "lang": "ru",
+  "status": "ok",
+  "size_bytes": 130,
+  "hash_sha256": "4ef230ff10e31be1cc61b2ea1629bdcb77fd5aa2caadb1ca183ef0921f353cde",
+  "tags": [],
+  "text": " технологии служат заботе, а каждое живое существо свободно быть собой."
+}
