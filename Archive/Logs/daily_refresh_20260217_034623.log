@@ -1,0 +1,10 @@
+[daily] started ts=20260217_034623 mode=strict
+global_refresh:ok
+strict_mode=strict
+workspace_matrix=/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_memory_matrix_report_latest.md
+agent_matrix=/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_memory_flow_report_latest.md
+subtree_report=/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_report_latest.md
+subtree_registry=/home/architit/work/Archivator_Agent/Archive/Index/subtree_registry.tsv
+anomaly_report=/home/architit/work/Archivator_Agent/Archive/Index/agent_matrix_anomaly_report_latest.md
+subtree_drift_report=/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_report_latest.md
+extended_report=/home/architit/work/Archivator_Agent/Archive/Index/archivator_extended_agent_matrix_report_latest.md

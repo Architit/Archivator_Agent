@@ -7,10 +7,10 @@ archivator_raw.py (v2) — RAW intake with 0% data loss.
 - ByFile mirror uses *basename-only* dir (no extension), to avoid file/dir name collision.
 """
 
-import argparse, os, sys, hashlib, shutil, uuid, datetime, pathlib, stat, json, errno, io, threading
+import argparse, os, sys, hashlib, shutil, uuid, datetime, pathlib, stat, json, errno, io, threading, glob
 
 def utcnow_iso():
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 FORBIDDEN = r'\\/:*?"<>|'
 
@@ -25,7 +25,10 @@ def sanitize_stem_only(path: str) -> str:
     stem = sanitize_name(stem).replace(" ", "-").lower()
     # map exotic to underscore
     stem = "".join(ch if (ch.isalnum() or ch in "-_.") else "_" for ch in stem)
-    return stem[:64] or "unnamed"
+    res = stem[:64].strip("_")
+    if not res:
+        return f"unnamed_{uuid.uuid4().hex[:8]}"
+    return res
 
 def file_read_chunks(src_path, chunk=4*1024*1024):
     with open(src_path, "rb") as f:
@@ -41,9 +44,24 @@ class FileLock:
     def __enter__(self):
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
         self._fd = open(self.path, "a+", encoding="utf-8")
+        if os.name == "nt":
+            import msvcrt
+            self._fd.seek(0)
+            msvcrt.locking(self._fd.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(self._fd.fileno(), fcntl.LOCK_EX)
         return self
     def __exit__(self, exc_type, exc, tb):
         try:
+            if self._fd:
+                if os.name == "nt":
+                    import msvcrt
+                    self._fd.seek(0)
+                    msvcrt.locking(self._fd.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(self._fd.fileno(), fcntl.LOCK_UN)
             self._fd.close()
         except Exception:
             pass
@@ -75,8 +93,8 @@ def load_known_sha256(index_path):
 def ensure_ro(path):
     try:
         os.chmod(path, stat.S_IREAD | stat.S_IRGRP | stat.S_IROTH)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[-] Warning: Failed to set read-only on {path}: {e}")
 
 def copy_with_hash(src, dst_part, hasher):
     os.makedirs(os.path.dirname(dst_part), exist_ok=True)
@@ -89,6 +107,20 @@ def copy_with_hash(src, dst_part, hasher):
         out.flush()
         os.fsync(out.fileno())
     return size
+
+def find_existing_byhash_blob(byhash_root, sha):
+    aa, bb = sha[:2], sha[2:4]
+    base_dir = os.path.join(byhash_root, aa, bb)
+    if not os.path.isdir(base_dir):
+        return ""
+    canonical = os.path.join(base_dir, sha)
+    if os.path.isfile(canonical):
+        return canonical
+    matches = sorted(glob.glob(os.path.join(base_dir, sha + ".*")))
+    for path in matches:
+        if os.path.isfile(path):
+            return path
+    return ""
 
 def main():
     ap = argparse.ArgumentParser()
@@ -151,18 +183,21 @@ def main():
 
                 # DEDUP: if sha already known -> do not duplicate ByHash blob
                 aa, bb = sha[:2], sha[2:4]
-                byhash_file = os.path.join(byhash, aa, bb, sha + (ext or ""))
-                os.makedirs(os.path.dirname(byhash_file), exist_ok=True)
+                canonical_byhash_file = os.path.join(byhash, aa, bb, sha)
+                os.makedirs(os.path.dirname(canonical_byhash_file), exist_ok=True)
+                existing_blob = find_existing_byhash_blob(byhash, sha)
 
-                if sha in known_sha and os.path.exists(byhash_file):
+                if existing_blob:
                     # already stored: drop staging
                     try: os.remove(staging)
                     except Exception: pass
+                    byhash_file = existing_blob
                     stored_new = False
                     dedup += 1
                 else:
                     # promote atomically
-                    os.replace(staging, byhash_file)
+                    os.replace(staging, canonical_byhash_file)
+                    byhash_file = canonical_byhash_file
                     ensure_ro(byhash_file)
                     stored_new = True
                     known_sha.add(sha)

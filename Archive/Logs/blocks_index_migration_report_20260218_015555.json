@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-02-18T01:55:55Z",
+  "archive": "/home/architit/work/Archivator_Agent/Archive",
+  "mode": "write",
+  "index_path": "/home/architit/work/Archivator_Agent/Archive/Index/blocks.index.jsonl",
+  "raw_index_path": "/home/architit/work/Archivator_Agent/Archive/Index/raw.index.jsonl",
+  "backup_path": "/home/architit/work/Archivator_Agent/Archive/Index/blocks.index.jsonl.bak.20260218_015555",
+  "stats": {
+    "total_lines": 285,
+    "json_lines": 285,
+    "changed_lines": 278,
+    "filled_parent_sha256": 0,
+    "filled_source_blob": 278,
+    "unresolved_source_blob": 7,
+    "invalid_json_lines": 0,
+    "missing_block_files": 285,
+    "unresolved_samples": [
+      {
+        "line": 23,
+        "id": "blk_20250820171407_000023",
+        "src_file": "int.cmp.err.δ.01",
+        "parent_sha256": ""
+      },
+      {
+        "line": 24,
+        "id": "blk_20250820171407_000024",
+        "src_file": "int.cmp.err.δ.01",
+        "parent_sha256": ""
+      },
+      {
+        "line": 278,
+        "id": "blk_20250820171410_000278",
+        "src_file": "текстовый-документ",
+        "parent_sha256": ""
+      },
+      {
+        "line": 279,
+        "id": "blk_20250820171410_000279",
+        "src_file": "текстовый-документ",
+        "parent_sha256": ""
+      },
+      {
+        "line": 280,
+        "id": "blk_20250820171410_000280",
+        "src_file": "текстовый-документ",
+        "parent_sha256": ""
+      },
+      {
+        "line": 281,
+        "id": "blk_20250820171410_000281",
+        "src_file": "текстовый-документ",
+        "parent_sha256": ""
+      },
+      {
+        "line": 282,
+        "id": "blk_20250820171410_000282",
+        "src_file": "текстовый-документ",
+        "parent_sha256": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-18T01:56:13Z",
+  "archive": "/home/architit/work/Archivator_Agent/Archive",
+  "mode": "dry-run",
+  "index_path": "/home/architit/work/Archivator_Agent/Archive/Index/blocks.index.jsonl",
+  "raw_index_path": "/home/architit/work/Archivator_Agent/Archive/Index/raw.index.jsonl",
+  "backup_path": "",
+  "stats": {
+    "total_lines": 285,
+    "json_lines": 285,
+    "changed_lines": 285,
+    "filled_parent_sha256": 285,
+    "filled_source_blob": 7,
+    "unresolved_source_blob": 0,
+    "invalid_json_lines": 0,
+    "missing_block_files": 0,
+    "unresolved_samples": []
+  }
+}

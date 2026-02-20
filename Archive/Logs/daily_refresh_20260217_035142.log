@@ -1,0 +1,18 @@
+[daily] started ts=20260217_035142 mode=soft
+global_refresh:ok
+strict_mode=soft
+workspace_matrix=/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_memory_matrix_report_latest.md
+agent_matrix=/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_memory_flow_report_latest.md
+subtree_report=/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_report_latest.md
+subtree_registry=/home/architit/work/Archivator_Agent/Archive/Index/subtree_registry.tsv
+anomaly_report=/home/architit/work/Archivator_Agent/Archive/Index/agent_matrix_anomaly_report_latest.md
+subtree_drift_report=/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_report_latest.md
+extended_report=/home/architit/work/Archivator_Agent/Archive/Index/archivator_extended_agent_matrix_report_latest.md
+Missing gateway root: /root/forbidden
+[daily] export retry attempt=1 failed
+Missing gateway root: /root/forbidden
+[daily] export retry attempt=2 failed
+Missing gateway root: /root/forbidden
+[daily] export retry attempt=3 failed
+[daily] export blocked report=/home/architit/work/Archivator_Agent/Archive/Index/daily_export_blocked_20260217_035142.md
+[daily] completed

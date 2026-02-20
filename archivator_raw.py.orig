@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+archivator_raw.py (v2) — RAW intake with 0% data loss.
+- Stdlib only, Windows-friendly.
+- Dedup by sha256 (content), but every source path is recorded (alias).
+- ByFile mirror uses *basename-only* dir (no extension), to avoid file/dir name collision.
+"""
+
+import argparse, os, sys, hashlib, shutil, uuid, datetime, pathlib, stat, json, errno, io, threading, glob
+
+def utcnow_iso():
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+FORBIDDEN = r'\\/:*?"<>|'
+
+def sanitize_name(name: str) -> str:
+    # Keep safe for filesystem: replace forbidden chars, collapse spaces, lower
+    s = "".join(("_" if c in FORBIDDEN else c) for c in name)
+    s = " ".join(s.split())
+    return s.strip()
+
+def sanitize_stem_only(path: str) -> str:
+    stem = pathlib.Path(path).stem
+    stem = sanitize_name(stem).replace(" ", "-").lower()
+    # map exotic to underscore
+    stem = "".join(ch if (ch.isalnum() or ch in "-_.") else "_" for ch in stem)
+    return stem[:64] or "unnamed"
+
+def file_read_chunks(src_path, chunk=4*1024*1024):
+    with open(src_path, "rb") as f:
+        while True:
+            b = f.read(chunk)
+            if not b: break
+            yield b
+
+class FileLock:
+    def __init__(self, path):
+        self.path = path + ".lock"
+        self._fd = None
+    def __enter__(self):
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        self._fd = open(self.path, "a+", encoding="utf-8")
+        if os.name == "nt":
+            import msvcrt
+            self._fd.seek(0)
+            msvcrt.locking(self._fd.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(self._fd.fileno(), fcntl.LOCK_EX)
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if self._fd:
+                if os.name == "nt":
+                    import msvcrt
+                    self._fd.seek(0)
+                    msvcrt.locking(self._fd.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(self._fd.fileno(), fcntl.LOCK_UN)
+            self._fd.close()
+        except Exception:
+            pass
+
+def append_jsonl_locked(path, obj):
+    tmpdir = os.path.dirname(path) or "."
+    os.makedirs(tmpdir, exist_ok=True)
+    lock = FileLock(path)
+    with lock:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+def load_known_sha256(index_path):
+    known = set()
+    if not os.path.isfile(index_path):
+        return known
+    with open(index_path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line=line.strip()
+            if not line: continue
+            try:
+                rec=json.loads(line)
+                h=rec.get("sha256")
+                if h: known.add(h)
+            except Exception:
+                continue
+    return known
+
+def ensure_ro(path):
+    try:
+        os.chmod(path, stat.S_IREAD | stat.S_IRGRP | stat.S_IROTH)
+    except Exception:
+        pass
+
+def copy_with_hash(src, dst_part, hasher):
+    os.makedirs(os.path.dirname(dst_part), exist_ok=True)
+    size = 0
+    with open(dst_part, "wb") as out:
+        for b in file_read_chunks(src):
+            hasher.update(b)
+            out.write(b)
+            size += len(b)
+        out.flush()
+        os.fsync(out.fileno())
+    return size
+
+def find_existing_byhash_blob(byhash_root, sha):
+    aa, bb = sha[:2], sha[2:4]
+    base_dir = os.path.join(byhash_root, aa, bb)
+    if not os.path.isdir(base_dir):
+        return ""
+    canonical = os.path.join(base_dir, sha)
+    if os.path.isfile(canonical):
+        return canonical
+    matches = sorted(glob.glob(os.path.join(base_dir, sha + ".*")))
+    for path in matches:
+        if os.path.isfile(path):
+            return path
+    return ""
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--source", required=True)
+    ap.add_argument("--archive", required=True)
+    args = ap.parse_args()
+
+    source = os.path.abspath(args.source)
+    archive = os.path.abspath(args.archive)
+
+    raw_index = os.path.join(archive, "Index", "raw.index.jsonl")
+    logs_dir  = os.path.join(archive, "Logs")
+    tmp_dir   = os.path.join(archive, "_tmp")
+    byhash    = os.path.join(archive, "Raw", "ByHash", "sha256")
+    byfile    = os.path.join(archive, "Raw", "ByFile")
+
+    os.makedirs(logs_dir, exist_ok=True)
+    os.makedirs(tmp_dir, exist_ok=True)
+    os.makedirs(byhash, exist_ok=True)
+    os.makedirs(byfile, exist_ok=True)
+    log_path  = os.path.join(logs_dir, "archivator_raw.log")
+
+    def log(msg):
+        with open(log_path, "a", encoding="utf-8") as lf:
+            lf.write(f"{utcnow_iso()} {msg}\n")
+
+    accepted = 0
+    dedup = 0
+    errors = 0
+
+    # cache known content hashes for dedup (content-level)
+    known_sha = load_known_sha256(raw_index)
+
+    # walk source
+    for root, _, files in os.walk(source):
+        for name in files:
+            src_path = os.path.join(root, name)
+            try:
+                rel = os.path.relpath(src_path, source)
+            except Exception:
+                rel = src_path
+
+            # lock per-file marker
+            lock_marker = os.path.join(tmp_dir, sanitize_stem_only(rel) + ".processing")
+            if os.path.exists(lock_marker):
+                # previous unfinished, but we continue (idempotent)
+                pass
+            open(lock_marker, "a").close()
+
+            try:
+                # stage copy with sha256 calculation
+                hasher = hashlib.sha256()
+                ext = pathlib.Path(name).suffix
+                staging = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.part")
+                size = copy_with_hash(src_path, staging, hasher)
+                sha = hasher.hexdigest()
+
+                # verify by reading back hash quickly (optional)
+                # (we trust write+fsync above; can re-hash if нужно)
+
+                # DEDUP: if sha already known -> do not duplicate ByHash blob
+                aa, bb = sha[:2], sha[2:4]
+                canonical_byhash_file = os.path.join(byhash, aa, bb, sha)
+                os.makedirs(os.path.dirname(canonical_byhash_file), exist_ok=True)
+                existing_blob = find_existing_byhash_blob(byhash, sha)
+
+                if existing_blob:
+                    # already stored: drop staging
+                    try: os.remove(staging)
+                    except Exception: pass
+                    byhash_file = existing_blob
+                    stored_new = False
+                    dedup += 1
+                else:
+                    # promote atomically
+                    os.replace(staging, canonical_byhash_file)
+                    byhash_file = canonical_byhash_file
+                    ensure_ro(byhash_file)
+                    stored_new = True
+                    known_sha.add(sha)
+
+                # ByFile mirror: folder = basename only (no extension)
+                stem = sanitize_stem_only(name)
+                byfile_dir = os.path.join(byfile, stem)
+                os.makedirs(byfile_dir, exist_ok=True)
+
+                # timestamp from source mtime (best effort)
+                try:
+                    ts = datetime.datetime.utcfromtimestamp(os.path.getmtime(src_path)).strftime("%Y-%m-%d_%H%M%S")
+                except Exception:
+                    ts = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H%M%S")
+
+                byfile_name = f"{ts}{ext or ''}"
+                byfile_path = os.path.join(byfile_dir, byfile_name)
+                if not os.path.exists(byfile_path):
+                    shutil.copy2(byhash_file, byfile_path)
+
+                # index entry (always append; unique by sha256)
+                rec = {
+                    "sha256": sha,
+                    "size_bytes": size,
+                    "ext": ext or "",
+                    "byhash": os.path.relpath(byhash_file, archive).replace("\\","/"),
+                    "byfile": os.path.relpath(byfile_path, archive).replace("\\","/"),
+                    "original": rel.replace("\\","/"),
+                    "mtime_src": datetime.datetime.utcfromtimestamp(os.path.getmtime(src_path)).replace(microsecond=0).isoformat()+"Z",
+                    "ingested_at": utcnow_iso()
+                }
+                append_jsonl_locked(raw_index, rec)
+
+                accepted += 1
+                log(f"[OK] {rel} -> {rec['byhash']} (dedup={not stored_new})")
+
+            except Exception as e:
+                errors += 1
+                log(f"[ERROR] {rel}: {e}")
+
+            finally:
+                try: os.remove(lock_marker)
+                except Exception: pass
+                try: os.remove(staging)
+                except Exception: pass
+
+    print(f"RAW accepted: {accepted} (dedup: {dedup}), errors: {errors}")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(130)

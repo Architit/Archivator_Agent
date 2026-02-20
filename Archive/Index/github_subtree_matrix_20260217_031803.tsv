@@ -1,0 +1,5 @@
+repo	repo_path	git_kind	head_commit	branch	remote_count	is_dirty	tracked_files	subtree_candidate
+LAM-Codex_Agent	/home/architit/work/LAM-Codex_Agent	standalone	886a4a3	main	1	yes	60	yes
+LAM_Comunication_Agent	/home/architit/work/LAM_Comunication_Agent	standalone	f0373fb	main	1	yes	30	yes
+Operator_Agent	/home/architit/work/Operator_Agent	standalone	76f38c6	main	1	yes	33	yes
+Roaudter-agent	/home/architit/work/Roaudter-agent	standalone	7faf14f	master	1	yes	44	yes
