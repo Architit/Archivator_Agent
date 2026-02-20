@@ -3,7 +3,7 @@
 **True Name:** # **Tendshpoisat**
 **Call Sign:** # **Taspit**
 **System ID:** # **TSPT**
-**Type:** Sovereign Tree of Tasks / Task Home
+**Type:** Sovereign Tree of Tasks / /tasks
 
 ---
 
