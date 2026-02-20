@@ -1,0 +1,16 @@
+repository	branch	prefix	method	status
+CORE	main	repos/CORE	subtree	updated
+CORE_RECLONE_CLEAN	main	repos/CORE_RECLONE_CLEAN	subtree	updated
+J.A.R.V.I.S	main	repos/J.A.R.V.I.S	subtree	updated
+LAM	phase2/observability	repos/LAM	subtree	updated
+LAM-Codex_Agent	main	repos/LAM-Codex_Agent	subtree	updated
+LAM_Comunication_Agent	main	repos/LAM_Comunication_Agent	subtree	updated
+LAM_DATA_Src	main	repos/LAM_DATA_Src	subtree	updated
+LAM_Test_Agent	main	repos/LAM_Test_Agent	subtree	updated
+Operator_Agent	main	repos/Operator_Agent	subtree	updated
+RADRILONIUMA-PROJECT	main	repos/RADRILONIUMA-PROJECT	subtree	updated
+Roaudter-agent	master	repos/Roaudter-agent	snapshot	fetch_failed_fallback_commit_failed
+System-	main	repos/System-	subtree	updated
+TRIANIUMA_DATA_BASE	main	repos/TRIANIUMA_DATA_BASE	subtree	updated
+Trianiuma	main	repos/Trianiuma	subtree	updated
+Trianiuma_MEM_CORE	main	repos/Trianiuma_MEM_CORE	subtree	updated

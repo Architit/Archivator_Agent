@@ -1,0 +1,7 @@
+subtree_path	expected_remote	expected_ref	expected_commit	actual_remote	actual_ref	actual_commit	status
+LAM-Codex_Agent	https://github.com/Architit/LAM-Codex_Agent.git	main	886a4a3	https://github.com/Architit/LAM-Codex_Agent.git	main	886a4a3	ok
+LAM_Comunication_Agent	https://github.com/Architit/LAM_Communication_Agent.git	main	f0373fb	https://github.com/Architit/LAM_Communication_Agent.git	main	f0373fb	ok
+LAM_DATA_Src	https://github.com/Architit/LAM_DATA_Src.git	main	0f3555e	https://github.com/Architit/LAM_DATA_Src.git	main	0f3555e	ok
+Operator_Agent	https://github.com/Architit/Operator_Agent.git	main	76f38c6	https://github.com/Architit/Operator_Agent.git	main	76f38c6	ok
+Roaudter-agent	https://github.com/Architit/Roaudter-agent.git	master	7faf14f	https://github.com/Architit/Roaudter-agent.git	master	7faf14f	ok
+Trianiuma_MEM_CORE	https://github.com/Architit/Trianiuma_MEM_CORE.git	main	4ed0e979	https://github.com/Architit/Trianiuma_MEM_CORE.git	main	4ed0e979	ok
