@@ -4,35 +4,68 @@ set -euo pipefail
 # DevKit patch helper.
 #
 # Usage:
-#   cat change.patch | devkit/patch.sh
-#
-# Reads a unified diff from stdin, applies it via git in a reproducible way,
-# and stages the result (canonical diff).
+#   cat change.patch | devkit/patch.sh --sha256 <64hex> --task-id <id> --spec-file <path>
 
 usage() {
   cat <<'USAGE'
 DevKit patch helper.
 
 Usage:
-  cat change.patch | devkit/patch.sh --sha256 <hex>
-  devkit/patch.sh --file <path> --sha256 <hex> [--task-id <id>] [--spec-file <path>]
-
-Reads a unified diff, applies it via git in a reproducible way,
-and stages the result.
+  cat change.patch | devkit/patch.sh --sha256 <64hex> --task-id <id> --spec-file <path>
+  devkit/patch.sh --file <path> --sha256 <64hex> --task-id <id> --spec-file <path>
 
 Options:
-  -h, --help          Show this help and exit.
-  --file <path>       Read patch from file instead of stdin.
-  --sha256 <hex>      Expected SHA-256 for patch artifact (required).
-  --task-id <id>      Task identifier for integrity trace tuple.
-  --spec-file <path>  Declarative task spec file used to compute spec_hash.
+  -h, --help           Show this help and exit.
+  --file <path>        Read patch from file instead of stdin.
+  --sha256 <64hex>     Expected SHA-256 for patch artifact (required).
+  --task-id <id>       Task identifier for audit chain (required).
+  --spec-file <path>   Task spec file for non-empty spec_hash (required).
 USAGE
 }
 
 PATCH_INPUT_FILE=""
-EXPECTED_PATCH_SHA256="${PATCH_SHA256:-}"
-TASK_ID="${TASK_ID:-unknown_task}"
+EXPECTED_SHA256="${PATCH_SHA256:-}"
+TASK_ID="${TASK_ID:-}"
 SPEC_FILE="${TASK_SPEC_FILE:-}"
+SPEC_HASH=""
+ARTIFACT_HASH="none"
+COMMIT_REF="unknown"
+
+emit_status() {
+  local status="$1"
+  local error_code="${2:-NONE}"
+  echo "status=$status"
+  echo "error_code=$error_code"
+}
+
+emit_trace() {
+  local apply_result="$1"
+  echo "trace: task_id=$TASK_ID spec_hash=$SPEC_HASH artifact_hash=$ARTIFACT_HASH apply_result=$apply_result commit_ref=$COMMIT_REF"
+}
+
+die_status() {
+  local status="$1"
+  local error_code="$2"
+  local msg="$3"
+  local apply_result="${4:-$status}"
+  echo "[patch] ERROR: $msg" >&2
+  emit_status "$status" "$error_code"
+  emit_trace "$apply_result"
+  exit 1
+}
+
+compute_sha256() {
+  local path="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum -- "$path" | awk '{print $1}'
+    return
+  fi
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 -- "$path" | awk '{print $1}'
+    return
+  fi
+  return 127
+}
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -45,17 +78,15 @@ while [ "$#" -gt 0 ]; do
       PATCH_INPUT_FILE="${1:-}"
       if [ -z "$PATCH_INPUT_FILE" ]; then
         echo "ERROR: --file requires a path argument" >&2
-        echo >&2
-        usage >&2
         exit 2
       fi
       ;;
     --sha256)
       shift
-      EXPECTED_PATCH_SHA256="${1:-}"
-      if [ -z "$EXPECTED_PATCH_SHA256" ]; then
-        echo "ERROR: --sha256 requires a 64-hex argument" >&2
-        exit 3
+      EXPECTED_SHA256="${1:-}"
+      if [ -z "$EXPECTED_SHA256" ]; then
+        echo "ERROR: --sha256 requires a hex digest argument" >&2
+        exit 2
       fi
       ;;
     --task-id)
@@ -63,7 +94,7 @@ while [ "$#" -gt 0 ]; do
       TASK_ID="${1:-}"
       if [ -z "$TASK_ID" ]; then
         echo "ERROR: --task-id requires a value" >&2
-        exit 3
+        exit 2
       fi
       ;;
     --spec-file)
@@ -71,7 +102,7 @@ while [ "$#" -gt 0 ]; do
       SPEC_FILE="${1:-}"
       if [ -z "$SPEC_FILE" ]; then
         echo "ERROR: --spec-file requires a path argument" >&2
-        exit 3
+        exit 2
       fi
       ;;
     --)
@@ -80,111 +111,103 @@ while [ "$#" -gt 0 ]; do
       ;;
     *)
       echo "ERROR: unknown argument: $1" >&2
-      echo >&2
-      usage >&2
       exit 2
       ;;
   esac
   shift
 done
 
-if ! command -v sha256sum >/dev/null 2>&1; then
-  echo "ERROR: precondition_failure missing_sha256sum" >&2
-  exit 3
-fi
-
 if ! command -v git >/dev/null 2>&1; then
   echo "ERROR: git not found in PATH" >&2
   exit 2
 fi
-
-if [ -z "$EXPECTED_PATCH_SHA256" ]; then
-  echo "ERROR: precondition_failure missing_patch_sha256" >&2
-  exit 3
-fi
-
-if ! [[ "$EXPECTED_PATCH_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]; then
-  echo "ERROR: precondition_failure invalid_patch_sha256 expected_64_hex" >&2
-  exit 3
-fi
-EXPECTED_PATCH_SHA256="$(printf '%s' "$EXPECTED_PATCH_SHA256" | tr '[:upper:]' '[:lower:]')"
-
-# Spec is optional for backward compatibility; if absent we keep explicit null hash.
-SPEC_HASH="spec_hash_unset"
-if [ -n "$SPEC_FILE" ]; then
-  if [ ! -r "$SPEC_FILE" ] || [ -d "$SPEC_FILE" ]; then
-    echo "ERROR: precondition_failure unreadable_spec_file path=$SPEC_FILE" >&2
-    exit 3
-  fi
-  SPEC_HASH="$(sha256sum -- "$SPEC_FILE" | awk '{print $1}')"
-fi
-
-# Must run inside a git worktree.
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "ERROR: not inside a git repository" >&2
-  exit 2
+  die_status "precondition_failed" "PATCH_NOT_IN_GIT_WORKTREE" "not inside a git repository"
+fi
+
+COMMIT_REF="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+
+if [ -z "$EXPECTED_SHA256" ]; then
+  die_status "precondition_failed" "PATCH_SHA256_REQUIRED" "missing_patch_sha256"
+fi
+if ! [[ "$EXPECTED_SHA256" =~ ^[a-f0-9A-F]{64}$ ]]; then
+  die_status "precondition_failed" "PATCH_SHA256_FORMAT_INVALID" "invalid_patch_sha256 expected_64_hex"
+fi
+EXPECTED_SHA256="$(printf '%s' "$EXPECTED_SHA256" | tr '[:upper:]' '[:lower:]')"
+
+if [ -z "$TASK_ID" ]; then
+  die_status "precondition_failed" "PATCH_TASK_ID_REQUIRED" "missing_task_id"
+fi
+if [ -z "$SPEC_FILE" ]; then
+  die_status "precondition_failed" "PATCH_SPEC_FILE_REQUIRED" "missing_spec_file"
+fi
+if [ ! -r "$SPEC_FILE" ] || [ -d "$SPEC_FILE" ]; then
+  die_status "precondition_failed" "PATCH_SPEC_NOT_READABLE" "unreadable_spec_file path=$SPEC_FILE"
+fi
+if ! SPEC_HASH="$(compute_sha256 "$SPEC_FILE")"; then
+  die_status "precondition_failed" "PATCH_SHA256_TOOL_UNAVAILABLE" "missing_sha256sum"
+fi
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  die_status "precondition_failed" "PATCH_TREE_NOT_CLEAN" "working tree/index must be clean before patch apply"
 fi
 
 PATCH_FILE="$(mktemp)"
-trap 'rm -f "$PATCH_FILE"' EXIT
+CHECK_STDERR="$(mktemp)"
+APPLY_STDERR="$(mktemp)"
+trap 'rm -f "$PATCH_FILE" "$CHECK_STDERR" "$APPLY_STDERR"' EXIT
 
 if [ -n "$PATCH_INPUT_FILE" ]; then
   if [ ! -r "$PATCH_INPUT_FILE" ] || [ -d "$PATCH_INPUT_FILE" ]; then
-    echo "ERROR: patch file not readable: $PATCH_INPUT_FILE" >&2
-    exit 2
+    die_status "precondition_failed" "PATCH_INPUT_NOT_READABLE" "patch file not readable: $PATCH_INPUT_FILE"
   fi
   if [ ! -s "$PATCH_INPUT_FILE" ]; then
-    echo "ERROR: empty patch input" >&2
-    exit 2
+    die_status "precondition_failed" "PATCH_INPUT_EMPTY" "empty patch input"
   fi
   cat -- "$PATCH_INPUT_FILE" > "$PATCH_FILE"
 else
-  # Read patch from stdin.
   if [ -t 0 ]; then
-    echo "ERROR: no patch provided on stdin (pipe a .patch into devkit/patch.sh)" >&2
-    echo >&2
-    usage >&2
-    exit 2
+    die_status "precondition_failed" "PATCH_INPUT_MISSING" "no patch provided on stdin"
   fi
-
-  # Prime stdin: fail fast on empty non-tty stdin (e.g. </dev/null), while preserving full stream.
   if ! IFS= read -r -n 1 first_char; then
-    echo "ERROR: empty patch input" >&2
-    exit 2
+    die_status "precondition_failed" "PATCH_INPUT_EMPTY" "empty patch input"
   fi
   printf %s "$first_char" > "$PATCH_FILE"
   cat >> "$PATCH_FILE"
-
   if [ ! -s "$PATCH_FILE" ]; then
-    echo "ERROR: empty patch input" >&2
-    exit 2
+    die_status "precondition_failed" "PATCH_INPUT_EMPTY" "empty patch input"
   fi
 fi
 
-ARTIFACT_HASH="$(sha256sum -- "$PATCH_FILE" | awk '{print $1}')"
-if [ "$ARTIFACT_HASH" != "$EXPECTED_PATCH_SHA256" ]; then
-  echo "ERROR: integrity_mismatch expected=$EXPECTED_PATCH_SHA256 actual=$ARTIFACT_HASH" >&2
-  echo "trace: task_id=$TASK_ID spec_hash=$SPEC_HASH artifact_hash=$ARTIFACT_HASH apply_result=integrity_mismatch"
-  exit 10
+if ! ARTIFACT_HASH="$(compute_sha256 "$PATCH_FILE")"; then
+  die_status "precondition_failed" "PATCH_SHA256_TOOL_UNAVAILABLE" "missing_sha256sum"
 fi
 
-APPLY_ERR_FILE="$(mktemp)"
-trap 'rm -f "$PATCH_FILE" "$APPLY_ERR_FILE"' EXIT
-if ! git apply --check --3way "$PATCH_FILE" 2>"$APPLY_ERR_FILE"; then
-  err_msg="$(tr '\n' ' ' <"$APPLY_ERR_FILE" | sed 's/[[:space:]]\+/ /g')"
-  echo "ERROR: conflict_detected $err_msg" >&2
-  echo "trace: task_id=$TASK_ID spec_hash=$SPEC_HASH artifact_hash=$ARTIFACT_HASH apply_result=conflict_detected"
-  exit 11
+if [ "$ARTIFACT_HASH" != "$EXPECTED_SHA256" ]; then
+  emit_status "integrity_mismatch" "PATCH_SHA256_MISMATCH"
+  echo "expected_sha256=$EXPECTED_SHA256"
+  echo "actual_sha256=$ARTIFACT_HASH"
+  emit_trace "integrity_mismatch"
+  exit 1
 fi
 
-# Apply and stage. Use 3-way merge, fail-fast on any conflict/apply error.
-if ! git apply --index --3way "$PATCH_FILE" 2>"$APPLY_ERR_FILE"; then
-  err_msg="$(tr '\n' ' ' <"$APPLY_ERR_FILE" | sed 's/[[:space:]]\+/ /g')"
-  echo "ERROR: conflict_detected $err_msg" >&2
-  echo "trace: task_id=$TASK_ID spec_hash=$SPEC_HASH artifact_hash=$ARTIFACT_HASH apply_result=conflict_detected"
-  exit 11
+if ! git apply --check --3way "$PATCH_FILE" 2>"$CHECK_STDERR"; then
+  echo "[patch] PRECHECK_FAILED" >&2
+  cat "$CHECK_STDERR" >&2 || true
+  emit_status "conflict_detected" "PATCH_CONFLICT_DETECTED"
+  emit_trace "conflict_detected"
+  exit 1
 fi
 
+if ! git apply --index --3way "$PATCH_FILE" 2>"$APPLY_STDERR"; then
+  echo "[patch] APPLY_FAILED" >&2
+  cat "$APPLY_STDERR" >&2 || true
+  emit_status "apply_failed" "PATCH_APPLY_FAILED"
+  emit_trace "apply_failed"
+  exit 1
+fi
+
+emit_status "success" "NONE"
+emit_trace "success"
 echo "OK: patch applied and staged."
-echo "trace: task_id=$TASK_ID spec_hash=$SPEC_HASH artifact_hash=$ARTIFACT_HASH apply_result=applied"
 git --no-pager diff --cached --stat
