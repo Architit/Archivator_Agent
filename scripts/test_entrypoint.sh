@@ -63,6 +63,9 @@ case "${1:---all}" in
   --flow-control)
     "$PYTEST_BIN" -q tests -k "phase_e_flow_control_archivator or test_phase_b_patch_runtime_contract"
     ;;
+  --p0-safety)
+    "$PYTEST_BIN" -q tests -k "phase_f_p0_safety_archivator or test_phase_b_patch_runtime_contract"
+    ;;
   --patch-runtime)
     "$PYTEST_BIN" -q tests/test_phase_b_patch_runtime_contract.py
     ;;
@@ -70,7 +73,7 @@ case "${1:---all}" in
     "$PYTEST_BIN" -q tests --maxfail=1
     ;;
   *)
-    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--transport|--flow-control|--patch-runtime|--ci]"
+    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--transport|--flow-control|--p0-safety|--patch-runtime|--ci]"
     exit 2
     ;;
 esac

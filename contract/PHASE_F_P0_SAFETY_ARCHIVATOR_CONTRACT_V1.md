@@ -1,0 +1,5 @@
+# PHASE_F_P0_SAFETY_ARCHIVATOR_CONTRACT_V1
+- phase_f_p0_safety_archivator_contract=ok
+- phase_f_circuit_breaker_refresh_path=ok
+- phase_f_hard_stop_refresh_path=ok
+- phase_f_manual_reauth_marker_scan=ok
