@@ -9,3 +9,4 @@ def test_test_entrypoint_modes_declared():
     assert "--unit-only" in text
     assert "--integration" in text
     assert "--ci" in text
+    assert "--research-gate" in text

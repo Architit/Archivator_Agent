@@ -69,11 +69,14 @@ case "${1:---all}" in
   --patch-runtime)
     "$PYTEST_BIN" -q tests/test_phase_b_patch_runtime_contract.py
     ;;
+  --research-gate)
+    "$PYTEST_BIN" -q tests -k "phase_r_research_gate_archivator or test_phase_b_patch_runtime_contract"
+    ;;
   --ci)
     "$PYTEST_BIN" -q tests --maxfail=1
     ;;
   *)
-    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--transport|--flow-control|--p0-safety|--patch-runtime|--ci]"
+    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--transport|--flow-control|--p0-safety|--patch-runtime|--research-gate|--ci]"
     exit 2
     ;;
 esac
