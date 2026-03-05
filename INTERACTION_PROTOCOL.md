@@ -1050,7 +1050,7 @@ Execution hard-rule (mandatory):
 
 ## M47 — Phase43 Deadloop Break Protocol (mandatory)
 
-Для цепочек governance-only в `P4_PHASE43_*` обязателен anti-deadloop разрыв, если наблюдается прогресс только по нумерации задач без engineering-дельты.
+Для цепочек governance-scoped в `P4_PHASE43_*` обязателен anti-deadloop разрыв, если наблюдается прогресс только по нумерации задач без engineering-дельты.
 
 Trigger:
 1) `consecutive_governance_only_steps >= 3` в одной цепочке.
