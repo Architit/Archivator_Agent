@@ -57,6 +57,9 @@ case "${1:---all}" in
   --memory)
     "$PYTEST_BIN" -q tests -k "phase_c_memory_kickoff or runtime_regressions"
     ;;
+  --transport)
+    "$PYTEST_BIN" -q tests -k "phase_d_transport_archivator or test_phase_b_patch_runtime_contract"
+    ;;
   --patch-runtime)
     "$PYTEST_BIN" -q tests/test_phase_b_patch_runtime_contract.py
     ;;
@@ -64,7 +67,7 @@ case "${1:---all}" in
     "$PYTEST_BIN" -q tests --maxfail=1
     ;;
   *)
-    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--patch-runtime|--ci]"
+    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--transport|--patch-runtime|--ci]"
     exit 2
     ;;
 esac
