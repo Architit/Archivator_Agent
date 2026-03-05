@@ -34,3 +34,22 @@ def test_latest_index_artifacts_exist():
     ]
     missing = [name for name in required if not (index / name).exists()]
     assert not missing, f"missing latest index artifacts: {missing}"
+
+
+def test_patch_helper_has_integrity_chain_markers():
+    text = (REPO_ROOT / "devkit" / "patch.sh").read_text(encoding="utf-8")
+    assert "missing_patch_sha256" in text
+    assert "integrity_mismatch" in text
+    assert "artifact_hash" in text
+    assert "spec_hash" in text
+    assert "apply_result=" in text
+
+
+def test_global_refresh_has_hybrid_cycle_hooks():
+    text = (REPO_ROOT / "scripts" / "archivator_global_refresh.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "semantic_index_hook=ok" in text
+    assert "physical_archive_hook=ok" in text
+    assert "hybrid_cycle=ok" in text
+    assert "gateway_io.sh\" export" in text

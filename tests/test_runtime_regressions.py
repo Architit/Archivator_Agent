@@ -24,6 +24,9 @@ def test_archivator_global_refresh_does_not_fail_on_unbound_root(tmp_path: Path)
     out = (proc.stdout + proc.stderr).lower()
     assert proc.returncode == 0, out
     assert "unbound variable" not in out
+    assert "semantic_index_hook=ok" in out
+    assert "physical_archive_hook=ok" in out
+    assert "hybrid_cycle=ok" in out
 
 
 def test_find_existing_byhash_blob_supports_legacy_sha_with_extension(tmp_path: Path):

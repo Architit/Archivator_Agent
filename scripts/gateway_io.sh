@@ -69,7 +69,7 @@ do_export() {
   mkdir -p "$GATEWAY_EXPORT_DIR"
   ts="$(date +%Y%m%d_%H%M%S)"
   archive="$GATEWAY_EXPORT_DIR/${REPO_NAME}_${ts}.tgz"
-  tar --exclude='.git' --exclude='.venv' --exclude='__pycache__' -czf "$archive" -C "$ROOT" .
+  tar --exclude='.git' --exclude='.venv' --exclude='__pycache__' --exclude='.gateway' -czf "$archive" -C "$ROOT" .
   log "export:ok archive=$archive"
 }
 
