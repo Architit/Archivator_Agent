@@ -1,4 +1,4 @@
-# GitHub Subtree Readiness Report — 20260218_030553
+# GitHub Subtree Readiness Report — 20260305_032840
 
 ## Target Scope
 - MissingRepo
@@ -13,6 +13,6 @@
 - Any update to candidate repositories must trigger matrix regeneration and delta evidence packaging.
 
 ## Artifacts
-- Subtree matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_matrix_20260218_030553.tsv`
+- Subtree matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_matrix_20260305_032840.tsv`
 - Latest subtree TSV pointer: `/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_matrix_latest.tsv`
 - Latest subtree report pointer: `/home/architit/work/Archivator_Agent/Archive/Index/github_subtree_report_latest.md`

@@ -1,3 +1,11 @@
 .venv/
 __pycache__/
 tests/__pycache__/
+
+# Artifact reconciliation (generated/session local state)
+.gemini/
+.gateway/
+chronolog/STATE.md
+Archive/Transfers/
+Archive/Index/*_20??????_??????.md
+Archive/Index/*_20??????_??????.tsv

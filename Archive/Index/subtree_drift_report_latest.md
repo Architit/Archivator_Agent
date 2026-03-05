@@ -1,7 +1,7 @@
-# Subtree Dependency Drift Report — 20260218_030553
+# Subtree Dependency Drift Report — 20260305_032840
 
 - Registry: `/home/architit/work/Archivator_Agent/Archive/Index/subtree_registry.tsv`
-- Work root: `/tmp/pytest-of-architit/pytest-143/test_archivator_global_refresh0`
+- Work root: `/tmp/pytest-of-architit/pytest-722/test_archivator_global_refresh0`
 - Checked: 0
 - Drifts: 0
 - STRICT_FAIL=0
@@ -12,6 +12,6 @@
 |---|---|---|---|---|---|
 
 ## Artifacts
-- Drift matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_matrix_20260218_030553.tsv`
+- Drift matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_matrix_20260305_032840.tsv`
 - Latest drift matrix: `/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_matrix_latest.tsv`
 - Latest drift report: `/home/architit/work/Archivator_Agent/Archive/Index/subtree_drift_report_latest.md`
