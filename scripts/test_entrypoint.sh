@@ -54,11 +54,14 @@ case "${1:---all}" in
   --control)
     "$PYTEST_BIN" -q tests -k control
     ;;
+  --memory)
+    "$PYTEST_BIN" -q tests -k "phase_c_memory_kickoff or runtime_regressions"
+    ;;
   --ci)
     "$PYTEST_BIN" -q tests --maxfail=1
     ;;
   *)
-    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--ci]"
+    echo "usage: $0 [--all|--unit-only|--integration|--governance|--control|--memory|--ci]"
     exit 2
     ;;
 esac

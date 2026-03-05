@@ -41,3 +41,6 @@ Format:
 2026-02-17 04:05 UTC — sync expansion wave continued — added extended control-plane contract checks and expanded suite from 5 to 10 checks (`10 passed`).
 2026-02-17 04:10 UTC — negative-path wave added — strict-mode narrow-scope block covered by subprocess test; suite expanded from 10 to 11 checks (`11 passed`).
 2026-02-19 10:00 UTC — Phase 8.0: Initiation of Sacred Root Materialization. Goal: Create 24 independent donor repositories in SubtreeHub/repos/ to resolve monolithic reduction.
+
+
+2026-03-05 06:50 UTC — phaseC kickoff started — added memory kickoff contract (`contract/PHASE_C_MEMORY_KICKOFF_CONTRACT_V1.md`), kickoff tests (`tests/test_phase_c_memory_kickoff.py`), dedicated entrypoint mode (`scripts/test_entrypoint.sh --memory`), and kickoff evidence reports in `gov/report` + `chronolog`.
