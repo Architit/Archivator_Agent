@@ -1,6 +1,6 @@
-# Ecosystem Memory Matrix Report — 20260305_063703
+# Ecosystem Memory Matrix Report — 20260305_072511
 
-Work root: `/tmp/pytest-of-architit/pytest-740/test_archivator_global_refresh0`
+Work root: `/tmp/pytest-of-architit/pytest-744/test_archivator_global_refresh0`
 
 ## 1. Repository Footprint (files / bytes)
 
@@ -23,6 +23,6 @@ Work root: `/tmp/pytest-of-architit/pytest-740/test_archivator_global_refresh0`
 |---|---|---:|
 
 ## Artifacts
-- File matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_file_matrix_20260305_063703.tsv`
+- File matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_file_matrix_20260305_072511.tsv`
 - Latest TSV pointer: `/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_file_matrix_latest.tsv`
 - Latest report pointer: `/home/architit/work/Archivator_Agent/Archive/Index/ecosystem_memory_matrix_report_latest.md`
