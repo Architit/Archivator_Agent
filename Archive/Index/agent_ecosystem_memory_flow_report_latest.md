@@ -1,6 +1,6 @@
-# Agent Ecosystem Memory/Flow Report — 20260305_072511
+# Agent Ecosystem Memory/Flow Report — 20260305_101415
 
-Work root: `/tmp/pytest-of-architit/pytest-744/test_archivator_global_refresh0`
+Work root: `/tmp/pytest-of-architit/pytest-785/test_archivator_global_refresh0`
 Targets: `MissingRepo`
 
 ## 1. Repository Footprint
@@ -24,6 +24,6 @@ Targets: `MissingRepo`
 |---|---|---|---|---:|
 
 ## Artifacts
-- Agent matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_file_matrix_20260305_072511.tsv`
+- Agent matrix TSV: `/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_file_matrix_20260305_101415.tsv`
 - Latest TSV pointer: `/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_file_matrix_latest.tsv`
 - Latest report pointer: `/home/architit/work/Archivator_Agent/Archive/Index/agent_ecosystem_memory_flow_report_latest.md`
