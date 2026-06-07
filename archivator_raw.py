@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026-06-07 RADRILONIUMA / TRIANIUMA Kingdom. All rights reserved.
 # -*- coding: utf-8 -*-
 """
 archivator_raw.py (v2) — RAW intake with 0% data loss.

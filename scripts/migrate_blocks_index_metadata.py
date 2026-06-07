@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026-06-07 RADRILONIUMA / TRIANIUMA Kingdom. All rights reserved.
 """Migrate Archive/Index/blocks.index.jsonl to include source_blob and parent_sha256.
 
 The script is safe by default (dry-run). In write mode it creates a timestamped

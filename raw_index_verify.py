@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026-06-07 RADRILONIUMA / TRIANIUMA Kingdom. All rights reserved.
 # -*- coding: utf-8 -*-
 """
 raw_index_verify.py (v2)
